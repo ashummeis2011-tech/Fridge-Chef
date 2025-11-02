@@ -1,13 +1,125 @@
 // src/app/layout.tsx
-import type { Metadata } from 'next';
+'use client';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseProvider } from '@/firebase/provider';
+import { FirebaseProvider, useFirebase } from '@/firebase/provider';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
+import { ChefHat, History, Home, LogIn, LogOut, PanelLeft, User } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@/firebase/auth/use-user';
+import { getAuth, signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { usePathname, useRouter } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'FridgeChef AI',
-  description: 'Generate recipes from a photo of your fridge!',
-};
+function AppContent({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
+  const pathname = usePathname();
+  const { isMobile } = useSidebar();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Logged Out',
+        description: 'You have been successfully logged out.',
+      });
+      router.push('/');
+    } catch (error) {
+      console.error('Sign out error', error);
+      toast({
+        variant: 'destructive',
+        title: 'Logout Failed',
+        description: 'There was a problem logging out. Please try again.',
+      });
+    }
+  };
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return names[0][0] + names[names.length - 1][0];
+    }
+    return name[0];
+  };
+
+  const mainPaths = ['/login', '/signup'];
+  if (mainPaths.includes(pathname) || (pathname === '/' && !user)) {
+    return <main className="flex-1">{children}</main>;
+  }
+
+  return (
+    <>
+      <Sidebar>
+        <SidebarHeader>
+            <div className="flex items-center gap-2">
+                <ChefHat className="h-8 w-8 text-primary" />
+                <span className="text-lg font-semibold">FridgeChef</span>
+            </div>
+        </SidebarHeader>
+        <SidebarContent>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
+                        <Link href="/dashboard"><Home />Dashboard</Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/history'}>
+                        <Link href="/history"><History />History</Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
+         <header className="p-2 border-b flex items-center justify-between gap-3 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+            {isMobile && <SidebarMenuButton variant="ghost" size="icon"><PanelLeft /></SidebarMenuButton>}
+             <div className="flex-1" />
+            {loading ? (
+                <div className="w-10 h-10 bg-muted rounded-full animate-pulse" />
+            ) : user ? (
+                 <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                        <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                    </Avatar>
+                    <button onClick={handleSignOut} className="text-sm font-medium text-muted-foreground hover:text-foreground">
+                        Sign Out
+                    </button>
+                 </div>
+            ): (
+                <Link href="/login" className="text-sm font-medium">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
+                </Link>
+            )}
+        </header>
+        {children}
+      </SidebarInset>
+    </>
+  )
+}
+
+function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const pathname = usePathname();
+  const mainPaths = ['/login', '/signup'];
+  
+  if (mainPaths.includes(pathname) || (pathname === '/' && !user && !loading)) {
+    return <main className="flex-1">{children}</main>;
+  }
+
+  return (
+    <SidebarProvider>
+      <AppContent>{children}</AppContent>
+    </SidebarProvider>
+  )
+}
 
 export default function RootLayout({
   children,
@@ -17,6 +129,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
+        <title>FridgeChef AI</title>
+        <meta name="description" content="Generate recipes from a photo of your fridge!" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -30,7 +144,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased h-full flex flex-col" suppressHydrationWarning>
         <FirebaseProvider>
-          {children}
+            <AppLayout>
+              {children}
+            </AppLayout>
           <Toaster />
         </FirebaseProvider>
       </body>

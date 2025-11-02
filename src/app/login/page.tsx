@@ -52,6 +52,8 @@ export default function LoginPage() {
           email: user.email,
           photoURL: user.photoURL,
           createdAt: new Date(),
+          age: null,
+          bio: '',
         });
       }
       

@@ -1,7 +1,7 @@
 // src/app/profile/page.tsx
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,19 +9,21 @@ import * as z from 'zod';
 import { useAuth } from '@/firebase/auth/use-user';
 import { useFirebase } from '@/firebase/provider';
 import { updateProfile } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, ChefHat } from 'lucide-react';
-import Link from 'next/link';
+import { User } from 'lucide-react';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }).max(50, { message: 'Name cannot be longer than 50 characters.' }),
+  age: z.coerce.number().min(0, { message: 'Age must be a positive number.' }).optional().or(z.literal('')),
+  bio: z.string().max(160, { message: 'Bio cannot be longer than 160 characters.' }).optional(),
 });
 
 export default function ProfilePage() {
@@ -29,22 +31,41 @@ export default function ProfilePage() {
   const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
+  const [isPageLoading, setPageLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       displayName: '',
+      age: '',
+      bio: '',
     },
   });
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       router.push('/login');
+      return;
     }
-    if (user) {
-      form.setValue('displayName', user.displayName || '');
-    }
-  }, [user, loading, router, form]);
+
+    const fetchUserData = async () => {
+        setPageLoading(true);
+        const userRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            form.reset({
+                displayName: userData.displayName || '',
+                age: userData.age || '',
+                bio: userData.bio || '',
+            });
+        }
+        setPageLoading(false);
+    };
+
+    fetchUserData();
+  }, [user, loading, router, form, firestore]);
   
   const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
@@ -57,23 +78,30 @@ export default function ProfilePage() {
     }
     
     try {
-        // Update Firebase Auth profile
-        await updateProfile(user, {
+        const updateData: any = {
             displayName: values.displayName,
-        });
+            age: values.age ? Number(values.age) : null,
+            bio: values.bio,
+        };
+
+        // Update Firebase Auth profile if display name changed
+        if (user.displayName !== values.displayName) {
+            await updateProfile(user, {
+                displayName: values.displayName,
+            });
+        }
 
         // Update Firestore document
         const userRef = doc(firestore, 'users', user.uid);
-        await updateDoc(userRef, {
-            displayName: values.displayName,
-        });
+        await updateDoc(userRef, updateData);
 
         toast({
             title: 'Profile Updated',
-            description: 'Your display name has been successfully updated.',
+            description: 'Your profile has been successfully updated.',
         });
          // This will force a re-render in the layout to show the new name
         router.refresh();
+        form.reset(values); // To update the form's dirty state
     } catch (error) {
         console.error('Error updating profile:', error);
         toast({
@@ -84,7 +112,7 @@ export default function ProfilePage() {
     }
   };
   
-  if (loading || !user) {
+  if (isPageLoading || loading || !user) {
     return (
         <div className="p-4 md:p-8 max-w-lg mx-auto">
             <header className="flex items-center gap-3 mb-8">
@@ -107,6 +135,10 @@ export default function ProfilePage() {
                         <Skeleton className="h-5 w-20" />
                         <Skeleton className="h-10 w-full" />
                     </div>
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-20 w-full" />
+                    </div>
                     <Skeleton className="h-10 w-24 ml-auto" />
                 </CardContent>
             </Card>
@@ -126,7 +158,7 @@ export default function ProfilePage() {
         <Card>
             <CardHeader>
                 <CardTitle>Your Information</CardTitle>
-                <CardDescription>Update your display name here.</CardDescription>
+                <CardDescription>Update your profile information here.</CardDescription>
             </CardHeader>
             <CardContent>
                  <Form {...form}>
@@ -139,6 +171,32 @@ export default function ProfilePage() {
                                     <FormLabel>Display Name</FormLabel>
                                     <FormControl>
                                         <Input placeholder="Your Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="age"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Age</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="Your Age" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Tell us a little about yourself" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

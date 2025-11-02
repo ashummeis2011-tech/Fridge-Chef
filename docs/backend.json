@@ -23,6 +23,14 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp when the user profile was created."
+        },
+        "age": {
+          "type": "number",
+          "description": "The user's age."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short bio about the user."
         }
       },
       "required": ["displayName", "email", "createdAt"]

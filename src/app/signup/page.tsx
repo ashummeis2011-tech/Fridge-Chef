@@ -16,11 +16,12 @@ import { Separator } from '@/components/ui/separator';
 
 import { ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useFirebase } from '@/firebase/provider';
 import { doc, setDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
+  displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
@@ -34,6 +35,7 @@ export default function SignupPage() {
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      displayName: '',
       email: '',
       password: '',
     },
@@ -50,6 +52,8 @@ export default function SignupPage() {
         email: user.email,
         photoURL: user.photoURL,
         createdAt: new Date(),
+        age: null,
+        bio: '',
       });
 
       router.push('/dashboard');
@@ -72,11 +76,18 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
+      // Update the user's profile with the display name
+      await updateProfile(user, {
+        displayName: values.displayName
+      });
+
       await setDoc(doc(firestore, "users", user.uid), {
-        displayName: values.email.split('@')[0], // Default display name
+        displayName: values.displayName,
         email: user.email,
         photoURL: '', // No photo URL for email sign-up
         createdAt: new Date(),
+        age: null,
+        bio: '',
       });
       
       router.push('/dashboard');
@@ -113,6 +124,19 @@ export default function SignupPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleEmailSignUp)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                <FormField
                 control={form.control}
                 name="email"

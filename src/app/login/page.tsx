@@ -10,16 +10,33 @@ import { Label } from '@/components/ui/label';
 import { ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
+import { useFirebase } from '@/firebase/provider';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { auth, firestore } = useFirebase();
 
   const handleGoogleLogin = async () => {
-    const auth = getAuth();
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user exists in Firestore, if not, create a new entry
+      const userRef = doc(firestore, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          createdAt: new Date(),
+        });
+      }
+      
       router.push('/');
       toast({
         title: 'Login Successful',
@@ -42,26 +59,10 @@ export default function LoginPage() {
         <CardHeader className="text-center">
             <ChefHat className="mx-auto h-12 w-12 text-primary" />
           <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardDescription>Select a provider below to login to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
             <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
               Login with Google
             </Button>

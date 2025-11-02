@@ -19,7 +19,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const pathname = usePathname();
-  const { isMobile } = useSidebar();
+  const { isMobile, toggleSidebar } = useSidebar();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -81,7 +81,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
          <header className="p-2 border-b flex items-center justify-between gap-3 sticky top-0 bg-background/80 backdrop-blur-sm z-10">
-            {isMobile && <SidebarMenuButton variant="ghost" size="icon"><PanelLeft /></SidebarMenuButton>}
+            {isMobile && <Button variant="ghost" size="icon" onClick={toggleSidebar}><PanelLeft /></Button>}
              <div className="flex-1" />
             {loading ? (
                 <div className="w-10 h-10 bg-muted rounded-full animate-pulse" />
@@ -123,10 +123,12 @@ function AppContent({ children }: { children: React.ReactNode }) {
                     </DropdownMenuContent>
                  </DropdownMenu>
             ): (
-                <Link href="/login" className="text-sm font-medium">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login
-                </Link>
+                <Button asChild>
+                    <Link href="/login">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Login
+                    </Link>
+                </Button>
             )}
         </header>
         {children}

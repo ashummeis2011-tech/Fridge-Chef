@@ -52,7 +52,7 @@ export default function SignupPage() {
         createdAt: new Date(),
       });
 
-      router.push('/');
+      router.push('/dashboard');
       toast({
         title: 'Account Created!',
         description: "You've successfully signed up.",
@@ -79,7 +79,7 @@ export default function SignupPage() {
         createdAt: new Date(),
       });
       
-      router.push('/');
+      router.push('/dashboard');
       toast({
         title: 'Account Created!',
         description: "You've successfully signed up.",
@@ -104,7 +104,9 @@ export default function SignupPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader className="text-center">
-          <ChefHat className="mx-auto h-12 w-12 text-primary" />
+          <Link href="/" className="inline-block mx-auto">
+            <ChefHat className="mx-auto h-12 w-12 text-primary" />
+          </Link>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
           <CardDescription>Enter your information to create an account</CardDescription>
         </CardHeader>

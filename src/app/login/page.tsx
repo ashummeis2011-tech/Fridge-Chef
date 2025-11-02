@@ -55,7 +55,7 @@ export default function LoginPage() {
         });
       }
       
-      router.push('/');
+      router.push('/dashboard');
       toast({
         title: 'Login Successful',
         description: "You've been successfully logged in.",
@@ -73,7 +73,7 @@ export default function LoginPage() {
   const handleEmailLogin = async (values: z.infer<typeof formSchema>) => {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      router.push('/');
+      router.push('/dashboard');
       toast({
         title: 'Login Successful',
         description: "You've been successfully logged in.",
@@ -96,7 +96,9 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader className="text-center">
-          <ChefHat className="mx-auto h-12 w-12 text-primary" />
+          <Link href="/" className="inline-block mx-auto">
+            <ChefHat className="mx-auto h-12 w-12 text-primary" />
+          </Link>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>Enter your email below to login to your account</CardDescription>
         </CardHeader>

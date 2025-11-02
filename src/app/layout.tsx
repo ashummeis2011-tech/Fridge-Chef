@@ -28,7 +28,7 @@ export default function RootLayout({
           rel="stylesheet"
         ></link>
       </head>
-      <body className="font-body antialiased h-full" suppressHydrationWarning>
+      <body className="font-body antialiased h-full flex flex-col" suppressHydrationWarning>
         <FirebaseProvider>
           {children}
           <Toaster />

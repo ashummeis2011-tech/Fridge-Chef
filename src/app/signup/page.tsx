@@ -8,17 +8,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ChefHat } from 'lucide-react';
-import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
+import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 
 export default function SignupPage() {
-  const { signInWithGoogle } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleGoogleSignUp = async () => {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
     try {
-      await signInWithGoogle();
+      await signInWithPopup(auth, provider);
       router.push('/');
        toast({
         title: 'Account Created!',

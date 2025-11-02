@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, useActionState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ import { Upload, AlertCircle, Salad, UtensilsCrossed, Sparkles, ChefHat, Save, D
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAuth } from '@/context/auth-context';
+import { useAuth } from '@/firebase/auth/use-user';
 
 type Recipe = {
   name: string;

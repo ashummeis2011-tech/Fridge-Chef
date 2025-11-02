@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/context/auth-context';
+import { FirebaseProvider } from '@/firebase/provider';
 
 export const metadata: Metadata = {
   title: 'FridgeChef AI',
@@ -29,10 +29,10 @@ export default function RootLayout({
         ></link>
       </head>
       <body className="font-body antialiased h-full" suppressHydrationWarning>
-        <AuthProvider>
+        <FirebaseProvider>
           {children}
           <Toaster />
-        </AuthProvider>
+        </FirebaseProvider>
       </body>
     </html>
   );

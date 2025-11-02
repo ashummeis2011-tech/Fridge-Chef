@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChefHat, LogIn, LogOut } from 'lucide-react';
 import { FridgeChefClient } from '@/components/fridge-chef-client';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/auth-context';
+import { useAuth } from '@/firebase/auth/use-user';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -15,9 +15,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { getAuth } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
-  const { user, signOutUser, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+       toast({
+        title: 'Logged Out',
+        description: 'You have been successfully logged out.',
+      });
+    } catch (error) {
+      console.error('Sign out error', error);
+       toast({
+        variant: 'destructive',
+        title: 'Logout Failed',
+        description: 'There was a problem logging out. Please try again.',
+      });
+    }
+  }
 
   const getInitials = (name?: string | null) => {
     if (!name) return 'U';
@@ -59,7 +81,7 @@ export default function Home() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOutUser}>
+                <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

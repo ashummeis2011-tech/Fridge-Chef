@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ChefHat, LogIn, LogOut } from 'lucide-react';
+import { ChefHat, LogIn, LogOut, History } from 'lucide-react';
 import { FridgeChefClient } from '@/components/fridge-chef-client';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firebase/auth/use-user';
@@ -80,6 +80,13 @@ export default function Home() {
                     <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                   </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/history">
+                        <History className="mr-2 h-4 w-4" />
+                        <span>History</span>
+                    </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />

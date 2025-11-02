@@ -2,7 +2,7 @@
 'use client';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseProvider, useFirebase } from '@/firebase/provider';
+import { FirebaseProvider } from '@/firebase/provider';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { ChefHat, History, Home, LogIn, LogOut, PanelLeft, User } from 'lucide-react';
 import Link from 'next/link';
@@ -11,6 +11,8 @@ import { getAuth, signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { usePathname, useRouter } from 'next/navigation';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -83,15 +85,42 @@ function AppContent({ children }: { children: React.ReactNode }) {
             {loading ? (
                 <div className="w-10 h-10 bg-muted rounded-full animate-pulse" />
             ) : user ? (
-                 <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-                        <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
-                    </Avatar>
-                    <button onClick={handleSignOut} className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                        Sign Out
-                    </button>
-                 </div>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                                <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                            </Avatar>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile">
+                                <User className="mr-2 h-4 w-4" />
+                                <span>Profile</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href="/history">
+                                <History className="mr-2 h-4 w-4" />
+                                <span>History</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleSignOut}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Log out</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                 </DropdownMenu>
             ): (
                 <Link href="/login" className="text-sm font-medium">
                     <LogIn className="mr-2 h-4 w-4" />
@@ -111,7 +140,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const mainPaths = ['/login', '/signup'];
   
   if (mainPaths.includes(pathname) || (pathname === '/' && !user && !loading)) {
-    return <main className="flex-1">{children}</main>;
+    return (
+        <main className="flex-1">{children}</main>
+    );
   }
 
   return (

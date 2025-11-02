@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { History, ChefHat, AlertCircle, Home } from 'lucide-react';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface IngredientHistory extends DocumentData {
     id: string;
@@ -26,15 +27,20 @@ export default function HistoryPage() {
     const [history, setHistory] = useState<IngredientHistory[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
-        if (authLoading) return;
+        if (authLoading) {
+            setLoading(true);
+            return;
+        }
         if (!user) {
-            setLoading(false);
+            router.push('/login');
             return;
         }
 
         const fetchHistory = async () => {
+            setLoading(true);
             try {
                 const ingredientsRef = collection(firestore, 'users', user.uid, 'ingredients');
                 const q = query(ingredientsRef, orderBy('createdAt', 'desc'));
@@ -57,7 +63,7 @@ export default function HistoryPage() {
         };
 
         fetchHistory();
-    }, [user, firestore, authLoading]);
+    }, [user, firestore, authLoading, router]);
 
     if (authLoading || loading) {
         return (
@@ -72,6 +78,7 @@ export default function HistoryPage() {
         );
     }
     
+    // This part is effectively unreachable due to the redirect but is good practice.
     if (!user) {
         return (
             <div className="container mx-auto p-4 md:p-8 max-w-3xl text-center">
@@ -129,7 +136,7 @@ export default function HistoryPage() {
                             </CardHeader>
                             <CardContent>
                                 <Button asChild variant="outline">
-                                    <Link href="/">Scan your first photo</Link>
+                                    <Link href="/dashboard">Scan your first photo</Link>
                                 </Button>
                             </CardContent>
                         </Card>
@@ -150,9 +157,9 @@ function Header() {
                 </h1>
             </div>
             <Button asChild variant="outline" size="sm">
-                <Link href="/">
+                <Link href="/dashboard">
                     <Home className="mr-2 h-4 w-4" />
-                    Back to Home
+                    Back to Dashboard
                 </Link>
             </Button>
         </header>

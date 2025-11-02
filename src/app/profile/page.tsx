@@ -1,7 +1,7 @@
 // src/app/profile/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,6 @@ export default function ProfilePage() {
   const { firestore } = useFirebase();
   const router = useRouter();
   const { toast } = useToast();
-  const [isPageLoading, setPageLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,29 +42,44 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     if (!user) {
       router.push('/login');
       return;
     }
 
     const fetchUserData = async () => {
-        setPageLoading(true);
         const userRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            form.reset({
-                displayName: userData.displayName || '',
-                age: userData.age || '',
-                bio: userData.bio || '',
-            });
+        try {
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                form.reset({
+                    displayName: userData.displayName || user.displayName || '',
+                    age: userData.age || '',
+                    bio: userData.bio || '',
+                });
+            } else {
+                 form.reset({
+                    displayName: user.displayName || '',
+                    age: '',
+                    bio: '',
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Could not load your profile data."
+            })
         }
-        setPageLoading(false);
     };
 
     fetchUserData();
-  }, [user, loading, router, form, firestore]);
+  }, [user, loading, router, form, firestore, toast]);
   
   const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
     if (!user) {
@@ -101,7 +115,7 @@ export default function ProfilePage() {
         });
          // This will force a re-render in the layout to show the new name
         router.refresh();
-        form.reset(values); // To update the form's dirty state
+        form.reset(values, { keepValues: true }); // To update the form's dirty state and keep new values
     } catch (error) {
         console.error('Error updating profile:', error);
         toast({
@@ -112,7 +126,7 @@ export default function ProfilePage() {
     }
   };
   
-  if (isPageLoading || loading || !user) {
+  if (loading || !user || !form.formState.isDirty && form.getValues().displayName === '') {
     return (
         <div className="p-4 md:p-8 max-w-lg mx-auto">
             <header className="flex items-center gap-3 mb-8">

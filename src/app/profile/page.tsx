@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User } from 'lucide-react';
+import { Home, User } from 'lucide-react';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }).max(50, { message: 'Name cannot be longer than 50 characters.' }),
@@ -78,7 +79,9 @@ export default function ProfilePage() {
         }
     };
 
-    fetchUserData();
+    if (user) {
+        fetchUserData();
+    }
   }, [user, loading, router, form, firestore, toast]);
   
   const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
@@ -129,11 +132,19 @@ export default function ProfilePage() {
   if (loading || !user || !form.formState.isDirty && form.getValues().displayName === '') {
     return (
         <div className="p-4 md:p-8 max-w-lg mx-auto">
-            <header className="flex items-center gap-3 mb-8">
-                <User className="text-primary h-8 w-8" />
-                <h1 className="text-2xl font-bold font-headline text-foreground">
-                    User Profile
-                </h1>
+            <header className="flex items-center justify-between gap-3 mb-8">
+                 <div className="flex items-center gap-3">
+                    <User className="text-primary h-8 w-8" />
+                    <h1 className="text-2xl font-bold font-headline text-foreground">
+                        User Profile
+                    </h1>
+                </div>
+                 <Button asChild variant="outline" size="sm">
+                    <Link href="/dashboard">
+                        <Home className="mr-2 h-4 w-4" />
+                        Back to Dashboard
+                    </Link>
+                </Button>
             </header>
             <Card>
                 <CardHeader>
@@ -162,11 +173,19 @@ export default function ProfilePage() {
 
   return (
     <div className="p-4 md:p-8 max-w-lg mx-auto">
-        <header className="flex items-center gap-3 mb-8">
-            <User className="text-primary h-8 w-8" />
-            <h1 className="text-2xl font-bold font-headline text-foreground">
-                User Profile
-            </h1>
+        <header className="flex items-center justify-between gap-3 mb-8">
+             <div className="flex items-center gap-3">
+                <User className="text-primary h-8 w-8" />
+                <h1 className="text-2xl font-bold font-headline text-foreground">
+                    User Profile
+                </h1>
+            </div>
+             <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard">
+                    <Home className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Link>
+            </Button>
         </header>
 
         <Card>

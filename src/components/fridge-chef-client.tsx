@@ -193,7 +193,7 @@ export function FridgeChefClient() {
        <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Link href="/login" tabIndex={-1}>{children}</Link>
+                    <div tabIndex={0} className="inline-block">{children}</div>
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>Log in to {featureName}.</p>
@@ -206,14 +206,14 @@ export function FridgeChefClient() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <div className="text-center space-y-2">
+      <div className="text-center space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
         <h2 className="text-3xl font-bold font-headline">What&apos;s in your fridge?</h2>
         <p className="text-muted-foreground">
           Upload a photo, and our AI will suggest delicious recipes with the ingredients you already have!
         </p>
       </div>
 
-      <Card className="shadow-lg">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-6 w-6" />
@@ -233,10 +233,10 @@ export function FridgeChefClient() {
               required
               ref={fileInputRef}
               onChange={handleFileChange}
-              className="file:text-foreground"
+              className="file:text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-colors"
             />
             {imagePreview && (
-              <div className="mt-4 relative aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-dashed">
+              <div className="mt-4 relative aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-dashed animate-in fade-in zoom-in-95">
                 <Image src={imagePreview} alt="Fridge content preview" fill objectFit="contain" />
               </div>
             )}
@@ -257,7 +257,7 @@ export function FridgeChefClient() {
       )}
 
       {(formPending || state?.ingredients) && (
-        <Card className="shadow-lg">
+        <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Salad className="h-6 w-6"/>
@@ -279,8 +279,8 @@ export function FridgeChefClient() {
                      </div>
                  ) : state.ingredients && state.ingredients.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                        {state.ingredients.map((ingredient) => (
-                            <Badge key={ingredient} variant="secondary" className="text-lg py-1 px-3">
+                        {state.ingredients.map((ingredient, i) => (
+                            <Badge key={ingredient} variant="secondary" className="text-lg py-1 px-3 animate-in fade-in-50" style={{animationDelay: `${i * 50}ms`}}>
                                 {ingredient}
                             </Badge>
                         ))}
@@ -329,7 +329,7 @@ export function FridgeChefClient() {
       )}
 
       {(isGeneratingRecipes || recipes.length > 0 || recipeError) && (
-         <Card className="shadow-lg">
+         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <UtensilsCrossed className="h-6 w-6"/>
@@ -352,7 +352,7 @@ export function FridgeChefClient() {
                  ) : recipes.length > 0 && (
                     <Accordion type="single" collapsible className="w-full">
                        {recipes.map((recipe, index) => (
-                          <AccordionItem key={recipe.name} value={`item-${index}`}>
+                          <AccordionItem key={recipe.name} value={`item-${index}`} className="animate-in fade-in" style={{animationDelay: `${index * 150}ms`}}>
                              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                                 <div className="flex items-center gap-2">
                                     <ChefHat className="h-5 w-5 text-primary"/>

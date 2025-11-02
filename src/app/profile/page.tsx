@@ -52,6 +52,7 @@ export default function ProfilePage() {
     }
 
     const fetchUserData = async () => {
+        if (!user) return;
         const userRef = doc(firestore, 'users', user.uid);
         try {
             const userDoc = await getDoc(userRef);
@@ -79,9 +80,7 @@ export default function ProfilePage() {
         }
     };
 
-    if (user) {
-        fetchUserData();
-    }
+    fetchUserData();
   }, [user, loading, router, form, firestore, toast]);
   
   const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
@@ -131,7 +130,7 @@ export default function ProfilePage() {
   
   if (loading || !user || !form.formState.isDirty && form.getValues().displayName === '') {
     return (
-        <div className="p-4 md:p-8 max-w-lg mx-auto">
+        <div className="p-4 md:p-8 max-w-lg mx-auto animate-in fade-in">
             <header className="flex items-center justify-between gap-3 mb-8">
                  <div className="flex items-center gap-3">
                     <User className="text-primary h-8 w-8" />
@@ -172,7 +171,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-lg mx-auto">
+    <div className="p-4 md:p-8 max-w-lg mx-auto animate-in fade-in-50">
         <header className="flex items-center justify-between gap-3 mb-8">
              <div className="flex items-center gap-3">
                 <User className="text-primary h-8 w-8" />

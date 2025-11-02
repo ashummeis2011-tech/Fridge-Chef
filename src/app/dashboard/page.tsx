@@ -19,7 +19,7 @@ export default function DashboardPage() {
   
   if (loading || !user) {
     return (
-      <div className="p-4 md:p-8">
+      <div className="p-4 md:p-8 animate-in fade-in">
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <Skeleton className="h-9 w-3/4 mx-auto rounded-md" />
@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
 
   return (
-      <div className="flex-1 p-4 md:p-8 overflow-auto">
+      <div className="flex-1 p-4 md:p-8 overflow-auto animate-in fade-in-50">
         <FridgeChefClient />
       </div>
   );

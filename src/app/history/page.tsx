@@ -62,12 +62,16 @@ export default function HistoryPage() {
             }
         };
 
-        fetchHistory();
+        if (user) {
+            fetchHistory();
+        } else {
+            setLoading(false);
+        }
     }, [user, firestore, authLoading, router]);
 
     if (authLoading || loading) {
         return (
-            <div className="container mx-auto p-4 md:p-8 max-w-3xl">
+            <div className="container mx-auto p-4 md:p-8 max-w-3xl animate-in fade-in">
                 <Header />
                 <div className="space-y-4 mt-8">
                     <Skeleton className="h-24 w-full" />
@@ -81,7 +85,7 @@ export default function HistoryPage() {
     // This part is effectively unreachable due to the redirect but is good practice.
     if (!user) {
         return (
-            <div className="container mx-auto p-4 md:p-8 max-w-3xl text-center">
+            <div className="container mx-auto p-4 md:p-8 max-w-3xl text-center animate-in fade-in">
                  <Header />
                  <Card className="mt-8">
                     <CardHeader>
@@ -99,7 +103,7 @@ export default function HistoryPage() {
     }
 
     return (
-        <div className="container mx-auto p-4 md:p-8 max-w-3xl">
+        <div className="container mx-auto p-4 md:p-8 max-w-3xl animate-in fade-in-50">
             <Header />
 
              {error && (
@@ -112,8 +116,8 @@ export default function HistoryPage() {
 
             <div className="space-y-4 mt-8">
                 {history.length > 0 ? (
-                    history.map(item => (
-                        <Card key={item.id}>
+                    history.map((item, index) => (
+                        <Card key={item.id} className="animate-in fade-in-50" style={{animationDelay: `${index * 100}ms`}}>
                             <CardHeader>
                                 <CardTitle className="text-lg">{format(item.createdAt, "MMMM d, yyyy 'at' h:mm a")}</CardTitle>
                                 <CardDescription>You saved the following ingredients:</CardDescription>

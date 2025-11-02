@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useActionState } from 'react';
+import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,11 +17,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/firebase/auth/use-user';
+import { useFirebase } from '@/firebase/provider';
+import { doc, setDoc } from 'firebase/firestore';
 
 type Recipe = {
   name: string;
   ingredients: string;
   instructions: string;
+  youtubeSearchQuery: string;
 };
 
 const initialState = {
@@ -57,6 +59,7 @@ export function FridgeChefClient() {
   const [recipeError, setRecipeError] = useState<string | null>(null);
   
   const { user } = useAuth();
+  const { firestore } = useFirebase();
   const isLoggedIn = !!user;
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -85,12 +88,27 @@ export function FridgeChefClient() {
     }
   };
 
-  const handleSave = () => {
-     if (!isLoggedIn) return; // This will be handled by the Link redirect anyway
-    toast({
-      title: 'Ingredients Saved!',
-      description: 'Your ingredients have been saved to your profile.',
-    });
+  const handleSave = async () => {
+     if (!isLoggedIn || !user || !state?.ingredients) return; 
+    
+    try {
+        const userIngredientsRef = doc(firestore, 'users', user.uid, 'ingredients', new Date().toISOString());
+        await setDoc(userIngredientsRef, {
+            ingredients: state.ingredients,
+            createdAt: new Date(),
+        });
+        toast({
+          title: 'Ingredients Saved!',
+          description: 'Your ingredients have been saved to your profile.',
+        });
+    } catch (error) {
+        console.error("Error saving ingredients:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Save Failed',
+            description: 'Could not save your ingredients. Please try again.',
+        });
+    }
   };
 
   const handleDownload = () => {
@@ -175,7 +193,7 @@ export function FridgeChefClient() {
        <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Link href="/login">{children}</Link>
+                    <Link href="/login" tabIndex={-1}>{children}</Link>
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>Log in to {featureName}.</p>
@@ -349,6 +367,17 @@ export function FridgeChefClient() {
                                 <h4 className="font-bold mt-4 mb-1">Instructions:</h4>
                                 <div className="space-y-2">
                                 {recipe.instructions.split('\n').map((line, i) => line.trim() && <p key={`${recipe.name}-instruction-${i}`}>{line}</p>)}
+                                </div>
+
+                                <h4 className="font-bold mt-4 mb-1">Video Tutorial:</h4>
+                                <div className="aspect-video w-full rounded-md overflow-hidden">
+                                  <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(recipe.youtubeSearchQuery)}`}
+                                    title={`YouTube video for ${recipe.name}`}
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  ></iframe>
                                 </div>
                              </AccordionContent>
                           </AccordionItem>

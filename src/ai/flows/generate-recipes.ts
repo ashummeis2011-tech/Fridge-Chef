@@ -24,6 +24,7 @@ const GenerateRecipesOutputSchema = z.object({
       name: z.string().describe('The name of the recipe.'),
       ingredients: z.string().describe('The ingredients required for the recipe.'),
       instructions: z.string().describe('The step-by-step instructions for the recipe.'),
+      youtubeSearchQuery: z.string().describe('A YouTube search query to find a video of the recipe.'),
     })
   ).describe('An array of recipe suggestions based on the available ingredients.'),
 });
@@ -42,7 +43,7 @@ const generateRecipesPrompt = ai.definePrompt({
   Ingredients: {{{ingredients}}}
 
   Please provide 3 recipe suggestions.
-  Each recipe must have a name, the required ingredients from the provided list, and step-by-step instructions.
+  For each recipe, provide a name, the required ingredients, step-by-step instructions, and a concise YouTube search query to find a video tutorial for the recipe (e.g., "easy chicken parmesan recipe").
   The ingredients field in the output should only contain ingredients from the input. Do not suggest ingredients which are not present in the input.
   Recipes must be simple, and able to be prepared in under 30 minutes.
   `,

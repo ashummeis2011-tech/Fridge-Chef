@@ -17,7 +17,7 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
   
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="p-4 md:p-8 animate-in fade-in">
         <div className="max-w-3xl mx-auto space-y-8">
@@ -26,6 +26,17 @@ export default function DashboardPage() {
             <Skeleton className="h-5 w-full max-w-lg mx-auto rounded-md" />
           </div>
           <Skeleton className="h-64 w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    // This is shown briefly while redirecting
+    return (
+      <div className="p-4 md:p-8 animate-in fade-in">
+        <div className="max-w-3xl mx-auto space-y-8 text-center">
+          <p>Redirecting to login...</p>
         </div>
       </div>
     );

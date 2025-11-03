@@ -53,7 +53,6 @@ const generateRecipesFlow = ai.defineFlow(
   async input => {
     const {response} = await ai.generate({
         prompt: generateRecipesPrompt,
-        model: 'googleai/gemini-1.5-flash',
         tools: [RecipeTool],
         input: {
             ingredients: input.ingredients,

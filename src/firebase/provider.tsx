@@ -16,22 +16,22 @@ const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   // Use a memoized value that will only be computed once on the client.
-  const { app, auth, firestore } = useMemo(() => {
-    const firebaseApp = initializeFirebase();
-    if (!firebaseApp) {
+  const firebaseServices = useMemo(() => {
+    // This function now correctly handles the server-side case by returning null
+    const app = initializeFirebase();
+    
+    if (!app) {
       return { app: null, auth: null, firestore: null };
     }
-    const authInstance = getAuth(firebaseApp);
-    const firestoreInstance = getFirestore(firebaseApp);
-    return { app: firebaseApp, auth: authInstance, firestore: firestoreInstance };
+    
+    const auth = getAuth(app);
+    const firestore = getFirestore(app);
+    
+    return { app, auth, firestore };
   }, []);
 
-  const contextValue = useMemo(() => {
-      return { app, auth, firestore };
-  }, [app, auth, firestore]);
-
   return (
-    <FirebaseContext.Provider value={contextValue}>
+    <FirebaseContext.Provider value={firebaseServices}>
       {children}
     </FirebaseContext.Provider>
   );

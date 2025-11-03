@@ -14,8 +14,7 @@ const firebaseConfig: FirebaseOptions = {
 // This function should only be called on the client side.
 function initializeFirebase(): FirebaseApp | null {
   if (typeof window === 'undefined') {
-    // On the server, we don't initialize. 
-    // The provider will ensure this only runs on the client.
+    // On the server, we don't initialize.
     return null;
   }
   
@@ -27,7 +26,12 @@ function initializeFirebase(): FirebaseApp | null {
 
   // Initialize on the client, using a singleton pattern.
   if (!getApps().length) {
-    return initializeApp(firebaseConfig);
+    try {
+        return initializeApp(firebaseConfig);
+    } catch(e) {
+        console.error("Failed to initialize Firebase", e);
+        return null;
+    }
   }
   return getApp();
 }

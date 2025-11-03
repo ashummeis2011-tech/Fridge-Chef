@@ -1,7 +1,7 @@
 'use server';
 
 import { identifyIngredients } from '@/ai/flows/identify-ingredients';
-import { generateRecipes, type GenerateRecipesOutput } from '@/ai/flows/generate-recipes';
+import { generateRecipes, type Recipe } from '@/ai/flows/generate-recipes';
 
 interface IdentifyResult {
   ingredients?: string[];
@@ -11,6 +11,8 @@ interface IdentifyResult {
 export async function handleIdentifyIngredients(prevState: any, formData: FormData): Promise<IdentifyResult> {
   const file = formData.get('image') as File;
   if (!file || file.size === 0) {
+    // This is for the reset action, not an error
+    if (prevState?.ingredients) return { ingredients: undefined };
     return { error: 'Please select an image file.' };
   }
 
@@ -37,25 +39,23 @@ export async function handleIdentifyIngredients(prevState: any, formData: FormDa
 }
 
 interface RecipeResult {
-    recipes?: GenerateRecipesOutput['recipes'];
     error?: string;
 }
 
-export async function handleGenerateRecipes(ingredients: string[]): Promise<RecipeResult> {
+export async function handleGenerateRecipes(ingredients: string[], onRecipe: (recipe: Recipe) => void): Promise<RecipeResult> {
     if (!ingredients || ingredients.length === 0) {
         return { error: 'No ingredients were provided to generate recipes.' };
     }
     
     try {
-        const result = await generateRecipes({ ingredients: ingredients.join(', ') });
-        if (result.recipes && result.recipes.length > 0) {
-            return { recipes: result.recipes };
-        } else {
-            return { error: 'Could not generate any recipes with the given ingredients.' };
-        }
+        const stream = await generateRecipes({ ingredients: ingredients.join(', ') }, onRecipe);
+        // The stream is handled on the client, we just need to know if an error occurred on setup
+        return {};
     } catch(e) {
         console.error(e);
         const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
         return { error: `An unexpected error occurred while generating recipes: ${errorMessage}` };
     }
 }
+
+    

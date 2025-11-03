@@ -81,9 +81,31 @@ export default function HistoryPage() {
             <div className="container mx-auto p-4 md:p-8 max-w-3xl animate-in fade-in">
                 <Header />
                 <div className="space-y-4 mt-8">
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-24 w-full" />
+                    <Card>
+                        <CardHeader>
+                            <Skeleton className="h-6 w-1/2" />
+                            <Skeleton className="h-4 w-1/3 mt-1" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-wrap gap-2">
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                                <Skeleton className="h-6 w-24 rounded-full" />
+                                <Skeleton className="h-6 w-16 rounded-full" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <Skeleton className="h-6 w-1/2" />
+                            <Skeleton className="h-4 w-1/3 mt-1" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-wrap gap-2">
+                                <Skeleton className="h-6 w-28 rounded-full" />
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         );
@@ -176,3 +198,5 @@ function Header() {
         </header>
     );
 }
+
+    

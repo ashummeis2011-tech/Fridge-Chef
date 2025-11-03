@@ -1,3 +1,4 @@
+// src/components/fridge-chef-client.tsx
 'use client';
 
 import { useState, useRef, useEffect, useActionState } from 'react';
@@ -82,10 +83,9 @@ export function FridgeChefClient() {
     setImagePreview(null);
     setRecipes([]);
     setRecipeError(null);
-    if (formRef.current) {
-        const formData = new FormData(formRef.current);
-        formAction(formData);
-    }
+    // This is a bit of a hack to reset the action state.
+    // A cleaner way might be needed if the useActionState API evolves.
+    formAction(new FormData());
   };
 
   const handleSave = async () => {
@@ -171,12 +171,14 @@ export function FridgeChefClient() {
         setIsGeneratingRecipes(true);
         setRecipeError(null);
         setRecipes([]);
-        const result = await handleGenerateRecipes(state.ingredients!);
-        if (result.recipes) {
-          setRecipes(result.recipes);
-        } else {
-          setRecipeError(result.error || 'Failed to generate recipes.');
+        const result = await handleGenerateRecipes(state.ingredients!, (recipe) => {
+            setRecipes(prev => [...prev, recipe]);
+        });
+        
+        if (result.error) {
+            setRecipeError(result.error || 'Failed to generate recipes.');
         }
+
         setIsGeneratingRecipes(false);
       };
       generate();
@@ -256,7 +258,7 @@ export function FridgeChefClient() {
          </Alert>
       )}
 
-      {(formPending || state?.ingredients) && (
+      {(formPending || (state?.ingredients && state.ingredients.length > 0)) && (
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -337,19 +339,13 @@ export function FridgeChefClient() {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                 {isGeneratingRecipes ? (
-                     <div className="space-y-4">
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                     </div>
-                 ) : recipeError ? (
+                 {recipeError ? (
                      <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Error Generating Recipes</AlertTitle>
                         <AlertDescription>{recipeError}</AlertDescription>
                      </Alert>
-                 ) : recipes.length > 0 && (
+                 ) : (
                     <Accordion type="single" collapsible className="w-full">
                        {recipes.map((recipe, index) => (
                           <AccordionItem key={recipe.name} value={`item-${index}`} className="animate-in fade-in" style={{animationDelay: `${index * 150}ms`}}>
@@ -382,6 +378,12 @@ export function FridgeChefClient() {
                              </AccordionContent>
                           </AccordionItem>
                        ))}
+                        {isGeneratingRecipes && (
+                            <>
+                                <Skeleton className="h-12 w-full mt-4" />
+                                <Skeleton className="h-12 w-full mt-4" />
+                            </>
+                        )}
                     </Accordion>
                  )}
             </CardContent>
@@ -390,3 +392,5 @@ export function FridgeChefClient() {
     </div>
   );
 }
+
+    

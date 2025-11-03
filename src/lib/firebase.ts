@@ -1,5 +1,9 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp, FirebaseApp, FirebaseOptions } from 'firebase/app';
+import { config } from 'dotenv';
+
+// Ensure environment variables are loaded
+config();
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,6 +20,7 @@ function initializeFirebase(): FirebaseApp | null {
   // we don't want to fail the build. The app will still work on the client
   // where the env vars are available.
   if (!firebaseConfig.apiKey) {
+    console.error("Firebase API key is missing. Ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your .env file.");
     return null;
   }
   

@@ -2,6 +2,7 @@
 'use client';
 
 import { FridgeChefClient } from '@/components/fridge-chef-client';
+import { ChatWidget } from '@/components/chat-widget';
 import { useAuth } from '@/firebase/auth/use-user';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -46,6 +47,7 @@ export default function DashboardPage() {
   return (
       <div className="flex-1 p-4 md:p-8 overflow-auto animate-in fade-in-50">
         <FridgeChefClient />
+        <ChatWidget />
       </div>
   );
 }

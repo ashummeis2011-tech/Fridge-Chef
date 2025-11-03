@@ -2,6 +2,8 @@
 
 import { identifyIngredients } from '@/ai/flows/identify-ingredients';
 import { generateRecipes, type Recipe } from '@/ai/flows/generate-recipes';
+import { chat, type ChatInput } from '@/ai/flows/chat-flow';
+
 
 interface IdentifyResult {
   ingredients?: string[];
@@ -58,4 +60,23 @@ export async function handleGenerateRecipes(ingredients: string[], onRecipe: (re
     }
 }
 
-    
+
+interface ChatResult {
+  response?: string;
+  error?: string;
+}
+
+export async function handleChat(input: ChatInput): Promise<ChatResult> {
+  if (!input.message) {
+    return { error: 'Message cannot be empty.' };
+  }
+  
+  try {
+    const response = await chat(input);
+    return { response };
+  } catch (e) {
+    console.error(e);
+    const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
+    return { error: `An unexpected error occurred during the chat: ${errorMessage}` };
+  }
+}

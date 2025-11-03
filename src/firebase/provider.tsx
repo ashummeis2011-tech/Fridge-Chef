@@ -15,16 +15,20 @@ interface FirebaseContextType {
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
-  const firebaseApp = useMemo(() => initializeFirebase(), []);
-  
-  const contextValue = useMemo(() => {
+  // Use a memoized value that will only be computed once on the client.
+  const { app, auth, firestore } = useMemo(() => {
+    const firebaseApp = initializeFirebase();
     if (!firebaseApp) {
       return { app: null, auth: null, firestore: null };
     }
-    const auth = getAuth(firebaseApp);
-    const firestore = getFirestore(firebaseApp);
-    return { app: firebaseApp, auth, firestore };
-  }, [firebaseApp]);
+    const authInstance = getAuth(firebaseApp);
+    const firestoreInstance = getFirestore(firebaseApp);
+    return { app: firebaseApp, auth: authInstance, firestore: firestoreInstance };
+  }, []);
+
+  const contextValue = useMemo(() => {
+      return { app, auth, firestore };
+  }, [app, auth, firestore]);
 
   return (
     <FirebaseContext.Provider value={contextValue}>
@@ -38,11 +42,5 @@ export function useFirebase() {
   if (context === undefined) {
     throw new Error('useFirebase must be used within a FirebaseProvider');
   }
-  // During build or if keys are missing, these can be null.
-  // Components should handle this gracefully.
-  if (context.app === null) {
-      // Return a non-null object with null fields to prevent destructuring errors
-      return { app: null, auth: null, firestore: null };
-  }
-  return context as { app: FirebaseApp, auth: Auth, firestore: Firestore };
+  return context;
 }

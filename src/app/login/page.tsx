@@ -18,7 +18,7 @@ import { ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 import { useFirebase } from '@/firebase/provider';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -48,24 +48,26 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      // Redirect immediately for a better user experience
+      router.push('/dashboard');
+      toast({
+        title: 'Login Successful',
+        description: "Welcome back!",
+      });
+
+      // Perform the database check/write in the background
       const userRef = doc(firestore, 'users', user.uid);
       const userDoc = await getDoc(userRef);
       if (!userDoc.exists()) {
-        await setDoc(userRef, {
+        setDoc(userRef, {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
           age: null,
           bio: '',
         });
       }
-      
-      router.push('/dashboard');
-      toast({
-        title: 'Login Successful',
-        description: "You've been successfully logged in.",
-      });
     } catch (error) {
       console.error('Google login failed', error);
       toast({
@@ -83,6 +85,8 @@ export default function LoginPage() {
     }
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
+      
+      // Redirect immediately for a better user experience
       router.push('/dashboard');
       toast({
         title: 'Login Successful',
@@ -148,7 +152,7 @@ export default function LoginPage() {
           </Form>
           <Separator className="my-4" />
           <div className="grid gap-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={!auth}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
               Login with Google
             </Button>
           </div>

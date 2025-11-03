@@ -18,7 +18,7 @@ import { ChefHat } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useFirebase } from '@/firebase/provider';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -51,20 +51,23 @@ export default function SignupPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      await setDoc(doc(firestore, 'users', user.uid), {
+      // Redirect immediately for a better user experience
+      router.push('/dashboard');
+      toast({
+        title: 'Account Created!',
+        description: "Welcome to FridgeChef!",
+      });
+      
+      // Perform database write in the background
+      setDoc(doc(firestore, 'users', user.uid), {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
         age: null,
         bio: '',
       });
 
-      router.push('/dashboard');
-      toast({
-        title: 'Account Created!',
-        description: "You've successfully signed up.",
-      });
     } catch (error) {
       console.error('Google sign up failed', error);
       toast({
@@ -84,26 +87,27 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Update the user's profile with the display name
-      await updateProfile(user, {
-        displayName: values.displayName
-      });
-
-      await setDoc(doc(firestore, "users", user.uid), {
-        displayName: values.displayName,
-        email: user.email,
-        photoURL: '', // No photo URL for email sign-up
-        createdAt: new Date(),
-        age: null,
-        bio: '',
-      });
-      
+      // Redirect immediately for a better user experience
       router.push('/dashboard');
       toast({
         title: 'Account Created!',
         description: "You've successfully signed up.",
       });
 
+      // Perform profile and database updates in the background
+      updateProfile(user, {
+        displayName: values.displayName
+      });
+
+      setDoc(doc(firestore, "users", user.uid), {
+        displayName: values.displayName,
+        email: user.email,
+        photoURL: '', // No photo URL for email sign-up
+        createdAt: serverTimestamp(),
+        age: null,
+        bio: '',
+      });
+      
     } catch (error: any) {
        console.error("Email sign up failed", error);
        let description = 'An unexpected error occurred. Please try again.';

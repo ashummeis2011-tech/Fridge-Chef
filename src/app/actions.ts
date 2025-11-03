@@ -2,8 +2,7 @@
 
 import { identifyIngredients } from '@/ai/flows/identify-ingredients';
 import { generateRecipes } from '@/ai/flows/generate-recipes';
-import { chat } from '@/ai/flows/chat-flow';
-import type { Recipe, ChatInput } from '@/ai/types';
+import type { Recipe } from '@/ai/types';
 
 
 interface IdentifyResult {
@@ -59,25 +58,4 @@ export async function handleGenerateRecipes(ingredients: string[], onRecipe: (re
         const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
         return { error: `An unexpected error occurred while generating recipes: ${errorMessage}` };
     }
-}
-
-
-interface ChatResult {
-  response?: string;
-  error?: string;
-}
-
-export async function handleChat(input: ChatInput): Promise<ChatResult> {
-  if (!input.message) {
-    return { error: 'Message cannot be empty.' };
-  }
-  
-  try {
-    const response = await chat(input);
-    return { response };
-  } catch (e) {
-    console.error(e);
-    const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
-    return { error: `An unexpected error occurred during the chat: ${errorMessage}` };
-  }
 }

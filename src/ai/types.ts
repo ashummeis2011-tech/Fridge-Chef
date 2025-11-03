@@ -1,23 +1,6 @@
 // src/ai/types.ts
 import {z} from 'genkit';
 
-// For chat-flow.ts
-export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
-
-export const ChatHistorySchema = z.array(ChatMessageSchema);
-export type ChatHistory = z.infer<typeof ChatHistorySchema>;
-
-export const ChatInputSchema = z.object({
-  history: ChatHistorySchema,
-  message: z.string(),
-});
-export type ChatInput = z.infer<typeof ChatInputSchema>;
-
-
 // For generate-recipes.ts
 export const GenerateRecipesInputSchema = z.object({
   ingredients: z

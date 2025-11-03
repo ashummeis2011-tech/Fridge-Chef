@@ -19,8 +19,8 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const pathname = usePathname();
-  const { isMobile, toggleSidebar } = useSidebar();
   const router = useRouter();
+  const { isMobile, toggleSidebar } = useSidebar();
 
   const handleSignOut = async () => {
     const auth = getAuth();
@@ -50,10 +50,20 @@ function AppContent({ children }: { children: React.ReactNode }) {
     return name[0];
   };
 
-  const mainPaths = ['/login', '/signup'];
-  if (mainPaths.includes(pathname) || (pathname === '/' && !user)) {
+  // Paths that do not require the full sidebar layout
+  const simpleLayoutPaths = ['/login', '/signup'];
+  let useSimpleLayout = simpleLayoutPaths.includes(pathname);
+
+  // The root path '/' should also be simple if the user is not logged in.
+  if (pathname === '/' && !user && !loading) {
+    useSimpleLayout = true;
+  }
+  
+  // If we are on a simple layout path, render just the children.
+  if (useSimpleLayout) {
     return <main className="flex-1">{children}</main>;
   }
+
 
   return (
     <>
@@ -138,21 +148,13 @@ function AppContent({ children }: { children: React.ReactNode }) {
 }
 
 function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const pathname = usePathname();
-  const mainPaths = ['/login', '/signup'];
-  
-  if (mainPaths.includes(pathname) || (pathname === '/' && !user && !loading)) {
-    return (
-        <main className="flex-1">{children}</main>
-    );
-  }
-
+   // We can now safely wrap AppContent in SidebarProvider at the top level
+   // because AppContent itself will handle whether to show the simple or full layout.
   return (
     <SidebarProvider>
       <AppContent>{children}</AppContent>
     </SidebarProvider>
-  )
+  );
 }
 
 export default function RootLayout({

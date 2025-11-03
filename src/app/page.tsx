@@ -157,6 +157,7 @@ export default function Home() {
         <div className="container mx-auto text-center text-sm text-muted-foreground">
           <p>Powered by Generative AI. Recipes are suggestions and should be prepared with care.</p>
           <p>&copy; {new Date().getFullYear()} FridgeChef AI. All rights reserved.</p>
+          <p>Made with ❤️ by <a href="https://www.instagram.com/not_rameen_" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">@not_rameen_</a></p>
         </div>
       </footer>
     </div>

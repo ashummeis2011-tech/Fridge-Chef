@@ -6,7 +6,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { GenerateRecipesInputSchema, GenerateRecipesInput, RecipeSchema, Recipe } from '@/ai/types';
 
 const RecipeTool = ai.defineTool(
@@ -53,7 +53,7 @@ const generateRecipesFlow = ai.defineFlow(
   async input => {
     const {response} = await ai.generate({
         prompt: generateRecipesPrompt,
-        model: 'googleai/gemini-1.5-flash-preview',
+        model: 'googleai/gemini-1.5-flash',
         tools: [RecipeTool],
         input: {
             ingredients: input.ingredients,

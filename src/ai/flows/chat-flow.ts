@@ -6,7 +6,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { ChatInputSchema, ChatInput } from '@/ai/types';
 
 
@@ -41,7 +41,7 @@ const chatFlow = ai.defineFlow(
     async (input) => {
         const { response } = await ai.generate({
             prompt: chatPrompt,
-            model: 'googleai/gemini-1.5-flash-preview',
+            model: 'googleai/gemini-1.5-flash',
             input: {
                 history: input.history,
                 message: input.message,

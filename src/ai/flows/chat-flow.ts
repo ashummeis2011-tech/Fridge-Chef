@@ -41,7 +41,7 @@ const chatFlow = ai.defineFlow(
     async (input) => {
         const { response } = await ai.generate({
             prompt: chatPrompt,
-            model: 'googleai/gemini-2.0-flash',
+            model: 'googleai/gemini-1.5-flash-preview',
             input: {
                 history: input.history,
                 message: input.message,

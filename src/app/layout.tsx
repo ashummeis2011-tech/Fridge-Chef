@@ -13,6 +13,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { usePathname, useRouter } from 'next/navigation';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { useFirebase } from '@/firebase/provider';
 
 
 function AppContent({ children }: { children: React.ReactNode }) {
@@ -21,9 +22,10 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile, toggleSidebar } = useSidebar();
+  const { auth } = useFirebase();
 
   const handleSignOut = async () => {
-    const auth = getAuth();
+    if (!auth) return;
     try {
       await signOut(auth);
       toast({

@@ -38,10 +38,17 @@ export default function HistoryPage() {
             router.push('/login');
             return;
         }
+        
+        if (!firestore) {
+            setError("Could not connect to the database.");
+            setLoading(false);
+            return;
+        }
 
         const fetchHistory = async () => {
             setLoading(true);
             try {
+                if (!user) return;
                 const ingredientsRef = collection(firestore, 'users', user.uid, 'ingredients');
                 const q = query(ingredientsRef, orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
@@ -62,7 +69,7 @@ export default function HistoryPage() {
             }
         };
 
-        if (user) {
+        if (user && firestore) {
             fetchHistory();
         } else {
             setLoading(false);

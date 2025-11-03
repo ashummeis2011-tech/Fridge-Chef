@@ -89,7 +89,7 @@ export function FridgeChefClient() {
   };
 
   const handleSave = async () => {
-     if (!isLoggedIn || !user || !state?.ingredients) return; 
+     if (!isLoggedIn || !user || !state?.ingredients || !firestore) return; 
     
     try {
         const userIngredientsRef = doc(firestore, 'users', user.uid, 'ingredients', new Date().toISOString());
@@ -290,7 +290,7 @@ export function FridgeChefClient() {
             {state.ingredients && state.ingredients.length > 0 && !formPending && (
               <CardFooter className="flex-wrap gap-2 pt-4 border-t">
                   <AuthTooltipWrapper featureName="save your ingredients">
-                    <Button onClick={handleSave} variant="outline" size="sm" disabled={!isLoggedIn}>
+                    <Button onClick={handleSave} variant="outline" size="sm" disabled={!isLoggedIn || !firestore}>
                         <Save className="mr-2 h-4 w-4"/> Save
                     </Button>
                   </AuthTooltipWrapper>

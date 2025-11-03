@@ -52,7 +52,7 @@ export default function ProfilePage() {
     }
 
     const fetchUserData = async () => {
-        if (!user) return;
+        if (!user || !firestore) return;
         const userRef = doc(firestore, 'users', user.uid);
         try {
             const userDoc = await getDoc(userRef);
@@ -84,12 +84,16 @@ export default function ProfilePage() {
   }, [user, loading, router, form, firestore, toast]);
   
   const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
-    if (!user) {
+    if (!user || !user.uid) {
         toast({
             variant: 'destructive',
             title: 'Not Authenticated',
             description: 'You must be logged in to update your profile.',
         });
+        return;
+    }
+     if (!firestore) {
+        toast({ variant: 'destructive', title: 'Database not available' });
         return;
     }
     

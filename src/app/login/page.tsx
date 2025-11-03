@@ -39,6 +39,10 @@ export default function LoginPage() {
   });
 
   const handleGoogleLogin = async () => {
+    if (!auth || !firestore) {
+        toast({ variant: 'destructive', title: 'Firebase not configured' });
+        return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -73,6 +77,10 @@ export default function LoginPage() {
   };
 
   const handleEmailLogin = async (values: z.infer<typeof formSchema>) => {
+    if (!auth) {
+        toast({ variant: 'destructive', title: 'Firebase not configured' });
+        return;
+    }
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       router.push('/dashboard');
@@ -133,14 +141,14 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !auth}>
                 {form.formState.isSubmitting ? 'Logging in...' : 'Login with Email'}
               </Button>
             </form>
           </Form>
           <Separator className="my-4" />
           <div className="grid gap-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={!auth}>
               Login with Google
             </Button>
           </div>

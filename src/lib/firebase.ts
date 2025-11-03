@@ -11,11 +11,22 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-function initializeFirebase(): FirebaseApp {
+function initializeFirebase(): FirebaseApp | null {
+  // During the build process on the server, if the env vars are not set,
+  // we don't want to fail the build. The app will still work on the client
+  // where the env vars are available.
+  if (!firebaseConfig.apiKey) {
+    return null;
+  }
+  
   if (typeof window === 'undefined') {
     // On the server, we need to create a new app instance for each request
-    // to avoid sharing state between requests.
-    return initializeApp(firebaseConfig, `server-${Date.now()}-${Math.random()}`);
+    // to avoid sharing state between requests. We can use a random name.
+    const appName = `server-${Date.now()}-${Math.random()}`;
+    if (!getApps().some(app => app.name === appName)) {
+        return initializeApp(firebaseConfig, appName);
+    }
+    return getApp(appName);
   }
   
   // On the client, we want to use a singleton instance

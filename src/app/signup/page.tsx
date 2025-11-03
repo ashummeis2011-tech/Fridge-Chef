@@ -42,6 +42,10 @@ export default function SignupPage() {
   });
 
   const handleGoogleSignUp = async () => {
+    if (!auth || !firestore) {
+        toast({ variant: 'destructive', title: 'Firebase not configured' });
+        return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -72,6 +76,10 @@ export default function SignupPage() {
   };
 
   const handleEmailSignUp = async (values: z.infer<typeof formSchema>) => {
+    if (!auth || !firestore) {
+        toast({ variant: 'destructive', title: 'Firebase not configured' });
+        return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -163,14 +171,14 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !auth}>
                 {form.formState.isSubmitting ? 'Creating Account...' : 'Create an account'}
               </Button>
             </form>
           </Form>
           <Separator className="my-4" />
           <div className="grid gap-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={!auth}>
               Sign up with Google
             </Button>
           </div>

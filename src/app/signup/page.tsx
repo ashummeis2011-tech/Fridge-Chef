@@ -93,7 +93,7 @@ export default function SignupPage() {
         displayName: values.displayName,
         email: user.email,
         photoURL: '', // No photo URL for email sign-up
-        createdAt: new date(),
+        createdAt: new Date(),
         age: null,
         bio: '',
       });
@@ -178,7 +178,7 @@ export default function SignupPage() {
           </Form>
           <Separator className="my-4" />
           <div className="grid gap-4">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={!auth}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
               Sign up with Google
             </Button>
           </div>

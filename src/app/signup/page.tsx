@@ -108,7 +108,7 @@ export default function SignupPage() {
        console.error("Email sign up failed", error);
        let description = 'An unexpected error occurred. Please try again.';
         if (error.code === 'auth/email-already-in-use') {
-            description = 'This email is already in use. Please log in or use a different email.';
+            description = 'This email is already in use. Please log in or try a different email address.';
         }
       toast({
         variant: 'destructive',

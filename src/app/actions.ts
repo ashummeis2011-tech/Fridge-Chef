@@ -1,8 +1,9 @@
 'use server';
 
 import { identifyIngredients } from '@/ai/flows/identify-ingredients';
-import { generateRecipes, type Recipe } from '@/ai/flows/generate-recipes';
-import { chat, type ChatInput } from '@/ai/flows/chat-flow';
+import { generateRecipes } from '@/ai/flows/generate-recipes';
+import { chat } from '@/ai/flows/chat-flow';
+import type { Recipe, ChatInput } from '@/ai/types';
 
 
 interface IdentifyResult {

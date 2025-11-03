@@ -3,28 +3,11 @@
  * @fileOverview A simple chat flow for recipe and cooking-related questions.
  *
  * - chat - A function that handles the chat conversation.
- * - ChatHistory - The type for the chat message history.
- * - ChatInput - The input type for the chat function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
-
-export const ChatHistorySchema = z.array(ChatMessageSchema);
-export type ChatHistory = z.infer<typeof ChatHistorySchema>;
-
-
-export const ChatInputSchema = z.object({
-  history: ChatHistorySchema,
-  message: z.string(),
-});
-export type ChatInput = z.infer<typeof ChatInputSchema>;
+import { ChatInputSchema, ChatInput } from '@/ai/types';
 
 
 const chatPrompt = `You are FridgeChef AI, a friendly and helpful cooking assistant.

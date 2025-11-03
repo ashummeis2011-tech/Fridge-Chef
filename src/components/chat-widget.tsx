@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { handleChat } from '@/app/actions';
-import { type ChatHistory, type ChatMessage } from '@/ai/flows/chat-flow';
+import { type ChatHistory, type ChatMessage } from '@/ai/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 

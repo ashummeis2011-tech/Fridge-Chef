@@ -1,30 +1,13 @@
-// src/ai/flows/generate-recipes.ts
 'use server';
 /**
  * @fileOverview AI flow to generate simple recipe suggestions based on identified ingredients.
  *
  * - generateRecipes - A function that generates recipe suggestions.
- * - GenerateRecipesInput - The input type for the generateRecipes function.
- * - Recipe - The type for a single recipe.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-const GenerateRecipesInputSchema = z.object({
-  ingredients: z
-    .string()
-    .describe('A comma-separated list of ingredients identified from the fridge photo.'),
-});
-export type GenerateRecipesInput = z.infer<typeof GenerateRecipesInputSchema>;
-
-const RecipeSchema = z.object({
-  name: z.string().describe('The name of the recipe.'),
-  ingredients: z.string().describe('The ingredients required for the recipe.'),
-  instructions: z.string().describe('The step-by-step instructions for the recipe.'),
-  youtubeSearchQuery: z.string().describe('A YouTube search query to find a video of the recipe.'),
-});
-export type Recipe = z.infer<typeof RecipeSchema>;
+import { GenerateRecipesInputSchema, GenerateRecipesInput, RecipeSchema, Recipe } from '@/ai/types';
 
 const RecipeTool = ai.defineTool(
   {
@@ -79,5 +62,3 @@ const generateRecipesFlow = ai.defineFlow(
     return;
   }
 );
-
-    

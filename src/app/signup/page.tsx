@@ -93,7 +93,7 @@ export default function SignupPage() {
         displayName: values.displayName,
         email: user.email,
         photoURL: '', // No photo URL for email sign-up
-        createdAt: new Date(),
+        createdAt: new date(),
         age: null,
         bio: '',
       });
@@ -171,7 +171,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !auth}>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? 'Creating Account...' : 'Create an account'}
               </Button>
             </form>

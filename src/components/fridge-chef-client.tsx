@@ -4,7 +4,6 @@
 import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
-import Link from 'next/link';
 import { handleIdentifyIngredients, handleGenerateRecipes } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +15,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Upload, AlertCircle, Salad, UtensilsCrossed, Sparkles, ChefHat, Save, Download, Share2, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAuth } from '@/firebase/auth/use-user';
 import { useFirebase } from '@/firebase/provider';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 type Recipe = {
   name: string;
@@ -59,9 +56,7 @@ export function FridgeChefClient() {
   const [isGeneratingRecipes, setIsGeneratingRecipes] = useState(false);
   const [recipeError, setRecipeError] = useState<string | null>(null);
   
-  const { user } = useAuth();
   const { firestore } = useFirebase();
-  const isLoggedIn = !!user;
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,17 +84,18 @@ export function FridgeChefClient() {
   };
 
   const handleSave = async () => {
-     if (!isLoggedIn || !user || !state?.ingredients || !firestore) return; 
+     if (!firestore || !state?.ingredients) return; 
     
     try {
-        const userIngredientsRef = doc(firestore, 'users', user.uid, 'ingredients', new Date().toISOString());
-        await setDoc(userIngredientsRef, {
+        const publicIngredientsRef = collection(firestore, 'publicIngredients');
+        await addDoc(publicIngredientsRef, {
             ingredients: state.ingredients,
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
+            isPublic: true, // Flag for querying
         });
         toast({
           title: 'Ingredients Saved!',
-          description: 'Your ingredients have been saved to your profile.',
+          description: 'Your ingredients have been saved publicly.',
         });
     } catch (error) {
         console.error("Error saving ingredients:", error);
@@ -112,7 +108,6 @@ export function FridgeChefClient() {
   };
 
   const handleDownload = () => {
-     if (!isLoggedIn) return;
     if (state?.ingredients) {
       const text = state.ingredients.join('\n');
       const blob = new Blob([text], { type: 'text/plain' });
@@ -132,7 +127,6 @@ export function FridgeChefClient() {
   };
 
   const handleShare = async () => {
-     if (!isLoggedIn) return;
     if (navigator.share && state?.ingredients) {
       try {
         await navigator.share({
@@ -186,25 +180,6 @@ export function FridgeChefClient() {
   }, [state?.ingredients]);
 
   const { pending: formPending } = useFormStatus();
-  
-  const AuthTooltipWrapper = ({ children, featureName }: { children: React.ReactNode, featureName: string }) => {
-    if (isLoggedIn) {
-      return <>{children}</>;
-    }
-    return (
-       <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <div tabIndex={0} className="inline-block">{children}</div>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Log in to {featureName}.</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-    );
-  };
-
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
@@ -265,11 +240,9 @@ export function FridgeChefClient() {
                     <Salad className="h-6 w-6"/>
                     Identified Ingredients
                 </CardTitle>
-                 {!isLoggedIn && !formPending && state.ingredients && (
-                    <CardDescription>
-                        <Link href="/login" className="text-primary underline">Log in</Link> or <Link href="/signup" className="text-primary underline">Sign up</Link> to save, download, or share your ingredients.
-                    </CardDescription>
-                )}
+                <CardDescription>
+                    You can save these ingredients to the public history page for everyone to see.
+                </CardDescription>
             </CardHeader>
             <CardContent>
                  {formPending ? (
@@ -291,21 +264,15 @@ export function FridgeChefClient() {
             </CardContent>
             {state.ingredients && state.ingredients.length > 0 && !formPending && (
               <CardFooter className="flex-wrap gap-2 pt-4 border-t">
-                  <AuthTooltipWrapper featureName="save your ingredients">
-                    <Button onClick={handleSave} variant="outline" size="sm" disabled={!isLoggedIn || !firestore}>
-                        <Save className="mr-2 h-4 w-4"/> Save
-                    </Button>
-                  </AuthTooltipWrapper>
-                  <AuthTooltipWrapper featureName="download your ingredients list">
-                    <Button onClick={handleDownload} variant="outline" size="sm" disabled={!isLoggedIn}>
-                        <Download className="mr-2 h-4 w-4"/> Download
-                    </Button>
-                  </AuthTooltipWrapper>
-                  <AuthTooltipWrapper featureName="share your ingredients">
-                    <Button onClick={handleShare} variant="outline" size="sm" disabled={!isLoggedIn}>
-                        <Share2 className="mr-2 h-4 w-4"/> Share
-                    </Button>
-                  </AuthTooltipWrapper>
+                  <Button onClick={handleSave} variant="outline" size="sm" disabled={!firestore}>
+                      <Save className="mr-2 h-4 w-4"/> Save Publicly
+                  </Button>
+                  <Button onClick={handleDownload} variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4"/> Download
+                  </Button>
+                  <Button onClick={handleShare} variant="outline" size="sm">
+                      <Share2 className="mr-2 h-4 w-4"/> Share
+                  </Button>
                    <Dialog>
                         <DialogTrigger asChild>
                            <Button variant="outline" size="sm">
@@ -392,5 +359,3 @@ export function FridgeChefClient() {
     </div>
   );
 }
-
-    

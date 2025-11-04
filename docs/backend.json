@@ -1,43 +1,8 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
-      "description": "Represents a user's profile in the application.",
-      "type": "object",
-      "properties": {
-        "displayName": {
-          "type": "string",
-          "description": "The user's display name."
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The user's email address."
-        },
-        "photoURL": {
-          "type": "string",
-          "format": "uri",
-          "description": "URL of the user's profile picture."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the user profile was created."
-        },
-        "age": {
-          "type": "number",
-          "description": "The user's age."
-        },
-        "bio": {
-          "type": "string",
-          "description": "A short bio about the user."
-        }
-      },
-      "required": ["displayName", "email", "createdAt"]
-    },
-    "UserIngredients": {
-        "title": "User Ingredients",
-        "description": "A list of ingredients saved by a user at a specific time.",
+    "PublicIngredients": {
+        "title": "Public Ingredients",
+        "description": "A list of ingredients saved publicly by any user.",
         "type": "object",
         "properties": {
             "ingredients": {
@@ -51,26 +16,24 @@
                 "type": "string",
                 "format": "date-time",
                 "description": "The timestamp when the ingredients were saved."
+            },
+            "isPublic": {
+                "type": "boolean",
+                "description": "Flag to indicate if the entry is public."
             }
         },
-        "required": ["ingredients", "createdAt"]
+        "required": ["ingredients", "createdAt", "isPublic"]
     }
   },
   "auth": {
-    "providers": ["google.com", "password"]
+    "providers": []
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/UserProfile"
-      },
-      "description": "Stores public profile information for each user."
-    },
-    "/users/{userId}/ingredients/{ingredientId}": {
+    "/publicIngredients/{ingredientId}": {
         "schema": {
-            "$ref": "#/entities/UserIngredients"
+            "$ref": "#/entities/PublicIngredients"
         },
-        "description": "Stores lists of ingredients saved by a user over time."
+        "description": "Stores lists of ingredients saved publicly by users."
     }
   }
 }

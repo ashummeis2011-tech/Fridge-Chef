@@ -1,0 +1,18 @@
+{
+  "featureSection": {
+    "src": "https://picsum.photos/seed/fridge/800/800",
+    "hint": "refrigerator food"
+  },
+  "avatar1": {
+    "src": "https://picsum.photos/seed/person1/100/100",
+    "hint": "woman portrait"
+  },
+  "avatar2": {
+    "src": "https://picsum.photos/seed/person2/100/100",
+    "hint": "man portrait"
+  },
+  "avatar3": {
+    "src": "https://picsum.photos/seed/person3/100/100",
+    "hint": "person smiling"
+  }
+}
